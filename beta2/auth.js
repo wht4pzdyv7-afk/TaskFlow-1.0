@@ -3,7 +3,7 @@ const authClient=window.supabase.createClient(SUPA_URL,SUPA_KEY);
 let activeUser=null,loadingAccount=false,saveQueue=Promise.resolve(),lastWrite=0,cloudExists=false;
 const wall=document.getElementById('accountWall'),note=document.getElementById('accountNote'),panel=document.getElementById('accountPanel');
 function localLegacy(){try{return JSON.parse(localStorage.getItem('taskflow_v1'))}catch{return null}}
-function normalise(o){if(!o||typeof o!=='object'||Array.isArray(o))throw Error('Neplatná data');return {events:Array.isArray(o.events)?o.events:[],quests:Array.isArray(o.quests)?o.quests:[],focus:Array.isArray(o.focus)?o.focus:[],locks:o.locks&&typeof o.locks==='object'&&!Array.isArray(o.locks)?o.locks:{},selected:typeof o.selected==='string'?o.selected:today()}}
+function normalise(o){if(!o||typeof o!=='object'||Array.isArray(o))throw Error('Neplatná data');return {events:Array.isArray(o.events)?o.events:[],quests:Array.isArray(o.quests)?o.quests:[],focus:Array.isArray(o.focus)?o.focus:[],locks:o.locks&&typeof o.locks==='object'&&!Array.isArray(o.locks)?o.locks:{},selected:typeof o.selected==='string'?o.selected:today(),dayChoices:o.dayChoices&&typeof o.dayChoices==='object'&&!Array.isArray(o.dayChoices)?o.dayChoices:{}}}
 const blankData=()=>normalise({});
 function downloadJson(o,filename){let b=new Blob([JSON.stringify(o,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000)}
 function cloudSave(snapshot){if(!activeUser||loadingAccount)return;let uid=activeUser.id,num=++lastWrite,payload=JSON.parse(JSON.stringify(snapshot));document.getElementById('cloudState').textContent='Ukládám';saveQueue=saveQueue.catch(()=>{}).then(async()=>{if(!activeUser||activeUser.id!==uid)return;let {error}=await authClient.from('user_data').upsert({user_id:uid,data:payload,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error){document.getElementById('cloudState').textContent='Chyba ukládání';alert('Data se nepodařilo uložit. Před odhlášením exportuj JSON zálohu.')}else if(num===lastWrite)document.getElementById('cloudState').textContent='Uloženo'})}
@@ -19,6 +19,18 @@ document.getElementById('downloadLegacy').onclick=()=>{let old=localLegacy();if(
 document.getElementById('skipLegacy').onclick=()=>{sessionStorage.setItem('skipImport-'+activeUser.id,'yes');wall.hidden=true};
 document.getElementById('importLegacy').onclick=async()=>{if(!activeUser||cloudExists)return;let old=localLegacy();if(!old)return;let {data:existing,error:e}=await authClient.from('user_data').select('user_id').eq('user_id',activeUser.id).maybeSingle();if(e||existing){note.textContent='Import zastaven: účet již obsahuje cloudová data nebo nastala chyba.';return}let payload=normalise(old);let {error}=await authClient.from('user_data').insert({user_id:activeUser.id,data:payload});if(error){note.textContent=error.message;return}cloudExists=true;data=payload;render();wall.hidden=true};
 document.getElementById('logoutAccount').onclick=async()=>{if(!confirm('Odhlásit se? Neuložené změny se mohou ztratit.'))return;await saveQueue;let {error}=await authClient.auth.signOut();if(error)alert(error.message);else await showSession(null)};
+
+document.getElementById('refreshAccount').onclick=async()=>{
+ if(!activeUser)return;
+ await saveQueue;
+ if(document.getElementById('cloudState').textContent==='Chyba ukládání'){alert('Poslední uložení selhalo. Nejdřív exportuj zálohu, aby se změny neztratily.');return;}
+ document.getElementById('cloudState').textContent='Načítám cloud';
+ const {data:row,error}=await authClient.from('user_data').select('data').eq('user_id',activeUser.id).maybeSingle();
+ if(error){document.getElementById('cloudState').textContent='Chyba načítání: '+error.message;return;}
+ if(!row){document.getElementById('cloudState').textContent='V cloudu zatím nejsou žádná data';return;}
+ data=normalise(row.data);render();document.getElementById('cloudState').textContent='Načteno z cloudu';
+};
+
 document.getElementById('exportAccount').onclick=()=>downloadJson(data,'taskflow-account-export.json');
 authClient.auth.getSession().then(({data:res,error})=>{if(error)throw error;return showSession(res.session)}).catch(e=>{note.textContent='Připojení se nezdařilo: '+e.message});
 authClient.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')setTimeout(()=>showSession(null),0);if(event==='SIGNED_IN'&&session?.user&&session.user.id!==activeUser?.id)setTimeout(()=>showSession(session),0)});
