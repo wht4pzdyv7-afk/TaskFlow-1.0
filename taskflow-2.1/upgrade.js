@@ -94,12 +94,8 @@ function initDom(){
  viewport.addEventListener('touchend',e=>{if(!touch||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;if(Math.abs(dx)>115&&Math.abs(dy)<45&&Math.abs(viewport.scrollLeft-touch.scroll)<12)navigateWeek(dx>0?-1:1);touch=null},{passive:true});
  Q('[name="allDay"]',$('eventForm')).addEventListener('change',eventAllDay);
  // Edit-mode deletion is available from every calendar event, including the home week.
- const eventForm=$('eventForm');
- const submitButton=eventForm.querySelector('button[type="submit"]');
- if(submitButton&&!$('tf21DeleteEvent')){
-  submitButton.insertAdjacentHTML('afterend','<button type="button" class="secondary" id="tf21DeleteEvent" hidden style="width:100%;margin-top:9px;color:#e36a75;border-color:#e36a756b">🗑 Smazat událost</button>');
-  $('tf21DeleteEvent').addEventListener('click',deleteCalendarEvent);
- }
+ const deleteButton=$('tf21DeleteEvent');
+ if(deleteButton)deleteButton.addEventListener('click',deleteCalendarEvent);
  QA('.tfFlyout [data-section]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.section==='home')setTimeout(()=>drawWeek(true),30)}));
 }
 function eventAllDay(){
@@ -184,6 +180,8 @@ function openCalendarEvent(input){
  eventAllDay();Q('.dialog-head h2',$('eventModal')).textContent=e?'Upravit událost':'Nová položka kalendáře';
  const deleteButton=$('tf21DeleteEvent');
  if(deleteButton)deleteButton.hidden=!e;
+ const saveButton=$('tf21SaveEvent');
+ if(saveButton)saveButton.textContent=e?'Uložit změny':'Uložit do kalendáře';
  openModal('eventModal');
 }
 const oldOpenEvent=window.openEvent;
