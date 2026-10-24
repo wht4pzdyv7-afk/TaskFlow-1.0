@@ -1,0 +1,66 @@
+
+/* TaskFlow 2.0 · personalisation. Themes are scoped to the authenticated Beta 2 UI. */
+header{gap:14px}
+header .logo{margin-right:auto}
+.tfMenuWrap{position:relative;order:3}
+.tfMenuToggle{border:1px solid var(--line);border-radius:14px;padding:11px 16px;background:var(--panel2);color:var(--text);font-weight:700;display:flex;align-items:center;gap:12px;min-height:43px}
+.tfMenuToggle:focus-visible,.tfFlyout button:focus-visible,.tfTheme:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.tfFlyout{position:absolute;right:0;top:calc(100% + 10px);z-index:130;width:min(278px,calc(100vw - 32px));padding:10px;background:var(--menu-bg,#192542);border:1px solid var(--line);border-radius:20px;box-shadow:0 22px 65px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:4px;backdrop-filter:blur(30px)}
+.tfFlyout[hidden]{display:none!important}
+.tfFlyout .tfMenuCaption{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:1.3px;padding:9px 12px 5px}
+.tfFlyout button{display:flex;align-items:center;text-align:left;gap:12px;width:100%;padding:12px;border:0;border-radius:12px;background:transparent;color:var(--text);font-weight:650}
+.tfFlyout button:hover,.tfFlyout button.active{background:var(--menu-active,rgba(140,140,250,.2))}
+.tfFlyout button .tfIco{font-size:18px;width:25px;text-align:center}
+.tfFlyout .tfDivider{height:1px;background:var(--line);margin:6px 9px}
+.tfHeadline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:2px 0 22px}
+.tfContentGap{display:grid;gap:16px}
+.tfTaskItem,.tfNoteCard{padding:17px;border:1px solid var(--line);border-radius:16px;background:var(--panel2)}
+.tfTaskItem{display:flex;gap:11px;align-items:center;margin-bottom:9px}
+.tfTaskItem input[type=checkbox]{height:19px;width:19px;accent-color:#8380e9}
+.tfTaskItem strong{display:block}
+.tfTaskItem .small{display:block;margin-top:5px}
+.tfNoteGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:12px}
+.tfNoteCard{min-height:145px;display:flex;flex-direction:column;gap:11px}
+.tfNoteCard .tfNoteBody{white-space:pre-wrap;overflow-wrap:anywhere;flex:1;color:var(--muted)}
+.tfNoteActions{display:flex;justify-content:flex-end;gap:6px}
+.tfNoteActions button{border:1px solid var(--line);background:transparent;color:var(--text);padding:8px 10px;border-radius:9px}
+.tfSettingsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.tfSettingsGrid .panel{min-height:260px}
+.tfThemeGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:17px}
+.tfTheme{background:var(--panel2);border:2px solid var(--line);border-radius:17px;padding:8px;color:var(--text);text-align:left;transition:transform .15s,border-color .15s}
+.tfTheme:hover{transform:translateY(-2px)}
+.tfTheme[aria-pressed=true]{border-color:var(--purple);box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 20%,transparent)}
+.tfThemePreview{display:block;height:96px;border-radius:11px;margin-bottom:11px;overflow:hidden}
+.tfTheme strong,.tfTheme .small{display:block;padding:0 4px 3px}
+.tfThemePreview.calm{background:radial-gradient(ellipse at 70% 30%,#fcf7ec,transparent 50%),radial-gradient(ellipse at 20% 90%,#b5c2ab,transparent 57%),linear-gradient(135deg,#dfd4be,#f0e6d8)}
+.tfThemePreview.space{background:radial-gradient(circle at 35% 30%,#c5ceec 0 1px,transparent 2px),radial-gradient(circle at 75% 70%,#c4c8e3 0 1px,transparent 2px),radial-gradient(ellipse at 78% 24%,#594488,transparent 65%),linear-gradient(135deg,#090f27,#1e3455)}
+.tfThemePreview.modern{background:radial-gradient(ellipse at 20% 35%,#fff7f2 0,transparent 48%),radial-gradient(ellipse at 80% 80%,#8196d9 0,transparent 49%),radial-gradient(ellipse at 60% 0%,#d8cffd,transparent 55%),linear-gradient(125deg,#b6e9f2,#e7d5f6 65%,#e9b9cf)}
+.tfProfileHint{margin:11px 0}
+.tfSettingsGrid label{margin-top:18px}
+.tfSettingsGrid .primary{margin-top:12px}
+.tfNoteEditor{display:grid;gap:11px}
+.tfNoteEditor input,.tfNoteEditor textarea{margin:0}
+.tfNoteEditor textarea{min-height:135px}
+body.theme-space{color-scheme:dark;--menu-bg:rgba(21,32,56,.97);--menu-active:rgba(145,133,250,.22);background:radial-gradient(circle at 13% 19%,#c7c9ecaa 0 1px,transparent 2px),radial-gradient(circle at 71% 33%,#e1d7f0aa 0 1px,transparent 2px),radial-gradient(circle at 86% 66%,#b2c0f7aa 0 1px,transparent 2px),radial-gradient(ellipse at 79% -10%,#423575 0,transparent 53%),radial-gradient(ellipse at -14% 94%,#153e61 0,transparent 50%),linear-gradient(135deg,#090e20,#131b33 63%,#10162a);background-attachment:fixed}
+body.theme-calm{color-scheme:light;--text:#302e28;--muted:#676b61;--panel:rgba(255,251,242,.82);--panel2:rgba(246,242,230,.85);--line:rgba(101,105,78,.19);--purple:#607e69;--blue:#537e79;--menu-bg:rgba(249,246,235,.98);--menu-active:rgba(108,143,116,.16);background:radial-gradient(ellipse at 90% 5%,#f9f0dd 2%,transparent 53%),radial-gradient(ellipse at -10% 65%,#aebfa9 0,transparent 53%),radial-gradient(ellipse at 105% 95%,#d0c4ac 0,transparent 48%),linear-gradient(140deg,#e8ddcb,#f1eae0 56%,#d9e0ce);background-attachment:fixed}
+body.theme-modern{color-scheme:light;--text:#242b43;--muted:#626b87;--panel:rgba(255,255,255,.7);--panel2:rgba(240,245,255,.74);--line:rgba(83,99,157,.2);--purple:#7862ca;--blue:#5279bf;--menu-bg:rgba(245,247,255,.97);--menu-active:rgba(120,134,211,.15);background:radial-gradient(ellipse at 17% 8%,#fcfdff 0,transparent 46%),radial-gradient(ellipse at 86% 9%,#d4bcf8 0,transparent 43%),radial-gradient(ellipse at 79% 91%,#a6c5f4 0,transparent 52%),radial-gradient(ellipse at 11% 88%,#b9e9f1 0,transparent 52%),linear-gradient(130deg,#d9edfb,#f5dce9 55%,#d7dcf7);background-attachment:fixed}
+body.theme-calm .mark{background:linear-gradient(145deg,#79947b,#bdaf92);box-shadow:0 8px 22px #76826833}
+body.theme-modern .mark{background:linear-gradient(145deg,#9274ed,#60b9e4);box-shadow:0 8px 22px #778cdb33}
+body.theme-calm .primary{background:linear-gradient(110deg,#6c8e74,#88aa95);color:#fff;box-shadow:0 7px 20px #4b71552e}
+body.theme-modern .primary{background:linear-gradient(105deg,#8476dd,#6b9dd9);color:#fff}
+body.theme-calm input:not([type=checkbox]),body.theme-calm select,body.theme-calm textarea,body.theme-modern input:not([type=checkbox]),body.theme-modern select,body.theme-modern textarea{background:#ffffffbd;border-color:var(--line);color:var(--text)}
+body.theme-calm label,body.theme-modern label{color:var(--text)}
+body.theme-calm .dialog,body.theme-modern .dialog{background:var(--menu-bg);color:var(--text);border-color:var(--line)}
+body.theme-calm .pill,body.theme-modern .pill{background:var(--panel2);color:var(--text);border-color:var(--line)}
+body.theme-calm .day,body.theme-modern .day,body.theme-calm .task,body.theme-modern .task,body.theme-calm .choice,body.theme-modern .choice{background:#ffffff59;border-color:var(--line)}
+body.theme-calm .day.selected,body.theme-modern .day.selected{background:#8e91d622;border-color:var(--purple)}
+body.theme-calm .weekhead,body.theme-modern .weekhead,body.theme-calm .eyebrow,body.theme-modern .eyebrow{color:var(--blue)}
+body.theme-calm .evening,body.theme-modern .evening{background:var(--panel2);border-color:var(--line)}
+body.theme-calm .notice,body.theme-modern .notice{background:var(--panel2);color:var(--muted);border-color:var(--line)}
+body.theme-calm .focusCircle,body.theme-modern .focusCircle{background:var(--panel2);border-color:var(--purple);box-shadow:0 0 65px #7d6be21a}
+body.theme-calm .tag,body.theme-modern .tag{color:#805e36;background:#c99d5d22}
+body.theme-calm .progress,body.theme-modern .progress{background:#9196af33}
+body.theme-calm .event,body.theme-modern .event{border-color:var(--line)}
+body.theme-calm #topLevel,body.theme-modern #topLevel{color:var(--text)}
+@media(max-width:680px){header{flex-direction:row!important;flex-wrap:wrap;align-items:center!important}.tfThemeGrid{grid-template-columns:1fr 1fr}.tfThemePreview{height:78px}.tfSettingsGrid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:420px){header .logo{font-size:19px}#topLevel{order:4}.tfMenuToggle{padding:9px 12px}.tfThemeGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.tfTheme{padding:5px}.tfThemePreview{height:62px}.tfTheme strong{font-size:12px}}
