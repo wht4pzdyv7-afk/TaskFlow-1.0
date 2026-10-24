@@ -113,6 +113,7 @@ function dateEvents(date){
  }
  return list.sort((a,b)=>String(a.time||'00:00').localeCompare(String(b.time||'00:00')));
 }
+window.onDate=dateEvents;
 function navigateWeek(n){shownWeek=add(shownWeek,7*n);drawWeek(false)}
 function drawWeek(scrollNow){
  const root=$('tf21WeekCanvas');if(!root)return;
