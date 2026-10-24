@@ -105,3 +105,10 @@ body .tfFlyout:not([hidden]){animation:tfDropdown .24s cubic-bezier(.2,1.25,.2,1
 @media(max-width:620px){.tf21-settings-flex{grid-template-columns:1fr}.tf21-week-panel{padding:10px}.tf21-week-width{min-width:740px}.tf21-toolbar h2{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.tf21-welcome,.tf21-levelup,.tf21-xp-beam{display:none!important}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 body[data-tf-reduce-motion="true"] *,body[data-tf-reduce-motion="true"] *:before,body[data-tf-reduce-motion="true"] *:after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+
+.tf21-focus-active header{opacity:.62;transition:opacity .3s}
+.tf21-focus-active #focus .intro{opacity:.68;transition:opacity .3s}
+.tf21-focus-active #focus .focusCircle{animation:tf21Pulse 3s ease-in-out infinite}
+@keyframes tf21Pulse{50%{filter:brightness(1.08)}}
+#eventModal.show .dialog,#questModal.show .dialog{animation:tf21SlideIn .26s ease-out both}
+@keyframes tf21SlideIn{from{opacity:.6;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
