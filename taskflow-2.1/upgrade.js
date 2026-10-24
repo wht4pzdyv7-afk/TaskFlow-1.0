@@ -93,6 +93,13 @@ function initDom(){
  viewport.addEventListener('touchstart',e=>{if(e.touches.length===1)touch={x:e.touches[0].clientX,y:e.touches[0].clientY,scroll:viewport.scrollLeft}},{passive:true});
  viewport.addEventListener('touchend',e=>{if(!touch||!e.changedTouches.length)return;const dx=e.changedTouches[0].clientX-touch.x,dy=e.changedTouches[0].clientY-touch.y;if(Math.abs(dx)>115&&Math.abs(dy)<45&&Math.abs(viewport.scrollLeft-touch.scroll)<12)navigateWeek(dx>0?-1:1);touch=null},{passive:true});
  Q('[name="allDay"]',$('eventForm')).addEventListener('change',eventAllDay);
+ // Edit-mode deletion is available from every calendar event, including the home week.
+ const eventForm=$('eventForm');
+ const submitButton=eventForm.querySelector('button[type="submit"]');
+ if(submitButton&&!$('tf21DeleteEvent')){
+  submitButton.insertAdjacentHTML('afterend','<button type="button" class="secondary" id="tf21DeleteEvent" hidden style="width:100%;margin-top:9px;color:#e36a75;border-color:#e36a756b">🗑 Smazat událost</button>');
+  $('tf21DeleteEvent').addEventListener('click',deleteCalendarEvent);
+ }
  QA('.tfFlyout [data-section]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.section==='home')setTimeout(()=>drawWeek(true),30)}));
 }
 function eventAllDay(){
@@ -175,10 +182,25 @@ function openCalendarEvent(input){
  if(e){Object.keys(e).forEach(k=>{if(!f.elements[k])return;if(f.elements[k].type==='checkbox')f.elements[k].checked=!!e[k];else f.elements[k].value=e[k]});}
  else{f.elements.date.value=input&&input.date||data.selected||today();f.elements.time.value=input&&input.time||'09:00';}
  eventAllDay();Q('.dialog-head h2',$('eventModal')).textContent=e?'Upravit událost':'Nová položka kalendáře';
+ const deleteButton=$('tf21DeleteEvent');
+ if(deleteButton)deleteButton.hidden=!e;
  openModal('eventModal');
 }
 const oldOpenEvent=window.openEvent;
 window.openEvent=function(){openCalendarEvent({date:data.selected||today()})};
+function deleteCalendarEvent(){
+ const f=$('eventForm'),eid=f.dataset.editId;
+ if(!eid)return;
+ const event=data.events.find(item=>item.id===eid);
+ if(!event)return;
+ const recurrence=(event.repeat&&event.repeat!=='none')?' Smaže se i celé opakování.':'';
+ if(!window.confirm('Opravdu smazat událost „'+event.title+'“?'+recurrence))return;
+ data.events=data.events.filter(item=>item.id!==eid);
+ delete f.dataset.editId;
+ closeModal('eventModal');
+ save21();
+ render();
+}
 function eventSubmit(e){
  e.preventDefault();e.stopImmediatePropagation();
  const f=e.currentTarget,old=data.events.find(x=>x.id===f.dataset.editId);
