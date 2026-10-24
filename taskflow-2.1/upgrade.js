@@ -53,6 +53,8 @@ function setTheme(){
  document.body.dataset.tfBackground=p.background;
  document.body.dataset.tfReduceMotion=p.motion?'false':'true';
 }
+function streak21(){let d=today(),sum=0;if(!data.locks[add(d,1)])d=add(d,-1);while(data.locks[add(d,1)]){sum++;d=add(d,-1)}return sum}
+window.streak=streak21;
 function initDom(){
  const home=$('home');const original=Q('.grid',home);if(original)original.classList.add('tf21-hidden');
  const week=document.createElement('div');week.id='tf21Home';week.innerHTML='<section class="panel tf21-week-panel"><div class="tf21-toolbar"><div><h2>Tvůj týden</h2><p id="tf21WeekLabel"></p></div><div class="toolbar"><button type="button" class="secondary" id="tf21PrevWeek" aria-label="Předchozí týden">‹</button><button type="button" class="secondary" id="tf21ThisWeek">This Week</button><button type="button" class="secondary" id="tf21NextWeek" aria-label="Další týden">›</button><button type="button" class="primary" id="tf21AddEvent">+ Událost</button></div></div><div class="tf21-week-viewport" id="tf21Scroll"><div class="tf21-week-width" id="tf21WeekCanvas"></div></div><p class="small" style="margin-top:9px">Klepni do rozvrhu pro přidání události. Přesuň kartu za ↔, uprav délku za spodní okraj.</p></section><div class="tf21-home-cols"><section class="panel"><div class="panel-top"><h2>Dnešní úkoly</h2><span class="small" id="tf21TodayCount"></span><button class="primary" id="tf21NewTask">+ Úkol</button></div><div id="tf21TodayTasks"></div></section><section class="panel"><h2>Tvůj progres</h2><p id="tf21XpSummary"></p><div class="progress" style="margin-top:14px"><div id="tf21XpBar"></div></div><div class="statgrid" style="margin-top:20px"><div class="stat"><span class="small">🔥 Planning Streak</span><strong id="tf21HomeStreak">0</strong></div><div class="stat"><span class="small">Focus dnes</span><strong id="tf21HomeFocus">0 min</strong></div></div><div class="line"></div><button type="button" class="primary" id="tf21PlanButton">☾ Next Day</button></section></div>';
@@ -60,6 +62,7 @@ function initDom(){
  const tasks=$('tasks');const taskPanel=Q('.panel',tasks);
  taskPanel.insertAdjacentHTML('afterbegin','<div class="tf21-filters"><select id="tf21TaskFilter" aria-label="Stav úkolů"><option value="all">Všechny</option><option value="active">Rozpracované</option><option value="done">Hotové</option></select><input id="tf21TaskSearch" type="search" placeholder="Hledat úkol…" aria-label="Hledat úkol"></div>');
  const notes=$('notes');Q('.intro p',notes).textContent='Všechny poznámky přehledně na jednom místě.';
+ const noteObserver=new MutationObserver(()=>{if(Q('.tfNoteCard',$('tfNotesList')))drawNotes()});noteObserver.observe($('tfNotesList'),{childList:true});
  const progress=$('progress');progress.insertAdjacentHTML('beforeend','<div class="tf21-home-cols" style="margin-top:18px"><section class="panel"><h2>XP za posledních 7 dní</h2><div id="tf21XpChart"></div><p class="small" id="tf21XpDetail">Klepni na den pro detail.</p></section><section class="panel"><h2>🔥 Planning Streak</h2><div id="tf21StreakStats"></div><div id="tf21StreakDays"></div></section></div><section class="panel" style="margin-top:18px"><h2>Focus Mode – statistiky</h2><div class="statgrid" id="tf21FocusStats" style="margin-top:13px"></div><div id="tf21FocusChart"></div></section>');
  const settings=$('settings'),appearance=Q('#tfThemeGrid',settings);
  const advanced=document.createElement('div');advanced.className='tf21-setting-panel';advanced.innerHTML='<h3>Vlastní přizpůsobení</h3><div class="tf21-settings-flex" style="margin-top:13px"><div><label for="tf21Accent">Hlavní barva</label><input type="color" id="tf21Accent" value="#8d82f2"></div><div><label for="tf21Transparency">Průhlednost karet</label><input id="tf21Transparency" type="range" min="40" max="95" step="5" value="76"></div><div><label for="tf21Background">Pozadí</label><select id="tf21Background"><option value="default">Podle motivu</option><option value="glow">Jemná záře</option><option value="clean">Jednobarevné</option></select></div><div><label>Zvuky a animace</label><label class="tf21-check"><input type="checkbox" id="tf21Sounds" checked> Jemné zvuky</label><label class="tf21-check"><input type="checkbox" id="tf21Motion" checked> Plynulé animace</label></div></div><p class="small" style="margin-top:12px">Změny se zobrazují ihned a automaticky se ukládají do účtu.</p>';
@@ -236,7 +239,7 @@ window.toggleQuest=function(qid){
 };
 function showXp(xp){
  if(!xp)return;
- const src=Q('[data-task-id]')||$('tf21XpSummary');
+ const src=$('tf21XpSummary')||Q('[data-task-id]');
  const rect=src?.getBoundingClientRect()||{x:innerWidth/2,y:innerHeight/2};
  const span=document.createElement('span');span.className='tf21-xp-beam';span.textContent='+'+xp+' XP';span.style.left=Math.min(innerWidth-90,rect.x+20)+'px';span.style.top=Math.max(20,rect.y)+'px';document.body.appendChild(span);setTimeout(()=>span.remove(),950);
  audible(630,.10,.024);
@@ -378,9 +381,9 @@ function bindCaptures(){
 }
 function applyPlanning(){
  const f=$('planModal');if(!f)return;
- const old=window.openPlanning;
  window.openPlanning=function(){
   planChoices={...(data.dayChoices?.[add(today(),1)]||{})};
+  dateEvents(add(today(),1)).forEach(e=>{if(typeof planChoices[e.id]!=='boolean')planChoices[e.id]=true});
   planDraft=data.quests.filter(q=>q.date===add(today(),1)&&q.locked&&!q.done&&!q.fromEvent).map(q=>({title:q.title,xp:q.xp,time:q.time||'',existingId:q.id}));
   planStep(0);openModal('planModal');
  };
@@ -398,7 +401,7 @@ function applyPlanning(){
     (remaining.map(q=>'<div class="tf21-draft-card"><span>'+safe(q.title)+'</span><div class="toolbar"><button type="button" onclick="tf21Carry(\''+safe(q.id)+'\')">'+(planDraft.some(t=>t.carry===q.id)?'✓ Připraveno':'→ Zítra')+'</button><button type="button" onclick="tf21Cancel(\''+safe(q.id)+'\')">Zrušit</button></div></div>').join('')||'<p>Vše hotovo!</p>');
   }
   if(currentStep===1){
-   const ev=dateEvents(next);
+   const ev=dateEvents(next);ev.forEach(e=>{if(typeof planChoices[e.id]!=='boolean')planChoices[e.id]=true});
    $('planContent').innerHTML='<p>Zítřek: <strong>'+safe(fmt(next))+'</strong>. Události se načítají ze Smart Calendar.</p><h3 style="margin:17px 0 8px">Zítřejší kalendář</h3>'+
     (ev.map(e=>'<div class="tf21-draft-card"><span><strong>'+safe(e.title)+'</strong><span class="small" style="display:block">'+(e.allDay?'Celý den':safe(e.time))+'</span></span><div class="toolbar"><button class="'+(planChoices[e.id]===true?'chosen':'')+'" onclick="tf21Choice(\''+safe(e.id)+'\',true)">✓</button><button onclick="tf21Choice(\''+safe(e.id)+'\',false)">×</button></div></div>').join('')||'<p>Žádné události.</p>')+
     '<div class="line"></div><h3>To Do Tomorrow</h3><div id="tf21DraftList"></div>'+
