@@ -112,3 +112,9 @@ body[data-tf-reduce-motion="true"] *,body[data-tf-reduce-motion="true"] *:before
 @keyframes tf21Pulse{50%{filter:brightness(1.08)}}
 #eventModal.show .dialog,#questModal.show .dialog{animation:tf21SlideIn .26s ease-out both}
 @keyframes tf21SlideIn{from{opacity:.6;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+body.theme-calm .primary,body.theme-modern .primary,body.theme-space .primary{background:linear-gradient(110deg,var(--tf-accent),color-mix(in srgb,var(--tf-accent),#75bedc 37%));color:#fff}
+.tf21-welcome-center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.tf21-intro-mark{width:66px;height:66px;border-radius:21px;background:linear-gradient(135deg,var(--tf-accent),#60b9e4);color:#fff;display:grid;place-items:center;font-size:40px;box-shadow:0 0 25px #b8a6ec55;opacity:0;transform:scale(.65)}
+.tf21-intro-mark.visible{opacity:1;transform:scale(1);transition:opacity .18s,transform .25s;animation:tf21Sparkle .55s ease}
+@keyframes tf21Sparkle{50%{box-shadow:0 0 35px #d9ccff,0 0 70px #7d6be27a;filter:brightness(1.55)}}
