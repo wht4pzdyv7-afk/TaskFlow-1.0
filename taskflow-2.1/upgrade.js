@@ -37,7 +37,7 @@ function award(q){
  if(!q||q.canceled||q.movedTo)return 0;
  if(q.locked)return Number(q.xp)||0;
  if(typeof q.xpToday==='number')return Number(q.xpToday)||0;
- return 0;
+ return suggestedDayXp(q);
 }
 function suggestedDayXp(q){const x=Number(q.xp);return x<=5?2:x<=15?10:20}
 function totalXp21(){return data.quests.reduce((t,q)=>t+(q.done?award(q):0),0)+data.focus.reduce((t,f)=>t+(Number(f.xp)||0),0)}
@@ -292,7 +292,7 @@ function drawNotes(){
  const notes=(data.notes||[]).slice().sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||String(b.updatedAt||'').localeCompare(String(a.updatedAt||'')));
  grid.innerHTML=notes.map(n=>{
   const expanded=expandedNotes.has(n.id);
-  return '<article class="tf21-notecard'+(expanded?' expanded':'')+'" data-note-id="'+safe(n.id)+'"><header><div style="flex:1;min-width:0"><h3>'+safe(n.title)+'</h3><span class="small">'+safe(String(n.updatedAt||'').slice(0,10))+'</span></div><button type="button" data-tf-pin-note="'+safe(n.id)+'" title="'+(n.pinned?'Odepnout':'Připnout')+'">'+(n.pinned?'📌':'♧')+'</button></header><button type="button" style="border:0;width:100%;padding:0;text-align:left;margin-top:14px" data-tf-expand-note="'+safe(n.id)+'"><div class="tf21-preview">'+safe(n.body||'').replace(/\n/g,'<br>')+'</div><span class="small">'+(expanded?'Sbalit ↑':'Zobrazit celé ↓')+'</span></button><div class="tf21-note-actions"><button type="button" data-note-action="edit" data-id="'+safe(n.id)+'">Upravit</button><button type="button" data-note-action="delete" data-id="'+safe(n.id)+'">Smazat</button></div></article>';
+  return '<article class="tf21-notecard'+(expanded?' expanded':'')+'" data-note-id="'+safe(n.id)+'"><header><div style="flex:1;min-width:0"><h3>'+safe(n.title)+'</h3><span class="small">'+safe(String(n.updatedAt||'').slice(0,10))+'</span></div><button type="button" data-tf-pin-note="'+safe(n.id)+'" title="'+(n.pinned?'Odepnout':'Připnout')+'">'+(n.pinned?'📌':'📍')+'</button></header><button type="button" style="border:0;width:100%;padding:0;text-align:left;margin-top:14px" data-tf-expand-note="'+safe(n.id)+'"><div class="tf21-preview">'+safe(n.body||'').replace(/\n/g,'<br>')+'</div><span class="small">'+(expanded?'Sbalit ↑':'Zobrazit celé ↓')+'</span></button><div class="tf21-note-actions"><button type="button" data-note-action="edit" data-id="'+safe(n.id)+'">Upravit</button><button type="button" data-note-action="delete" data-id="'+safe(n.id)+'">Smazat</button></div></article>';
  }).join('')||'<div class="panel"><p>Ještě nemáš žádné poznámky.</p></div>';
 }
 function updateSettingFields(){
@@ -305,12 +305,20 @@ function doIntro(){
  didIntro=true;
  const name=String(data.profile.name||'').trim();
  const welcome='Welcome back'+(name?', '+name:'')+'!';
- const overlay=document.createElement('div');overlay.className='tf21-welcome';overlay.innerHTML='<span class="tf21-type" id="tf21WelcomeText"></span>';document.body.appendChild(overlay);
+ const overlay=document.createElement('div');overlay.className='tf21-welcome';overlay.innerHTML='<div class="tf21-welcome-center"><span class="tf21-type" id="tf21WelcomeText"></span><span class="tf21-intro-mark" id="tf21IntroMark" aria-hidden="true">✦</span></div>';document.body.appendChild(overlay);
  let i=0;const timer=setInterval(()=>{
   if(i>=welcome.length){clearInterval(timer);return}
   $('tf21WelcomeText').textContent+=welcome[i++];
   if(i%3===0)audible(350+Math.random()*70,.025,.006);
  },45);
+ setTimeout(()=>{
+  const mark=$('tf21IntroMark'),target=Q('header .mark');if(!mark||!target)return;
+  mark.classList.add('visible');audible(800,.18,.036);
+  if(mark.animate&&preferences().motion){const a=mark.getBoundingClientRect(),b=target.getBoundingClientRect();
+   mark.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:'translate('+(b.left-a.left)+'px,'+(b.top-a.top)+'px) scale(.45)',opacity:1}],{duration:850,delay:180,easing:'cubic-bezier(.22,.8,.25,1)',fill:'forwards'});
+  }
+  setTimeout(()=>audible(240,.19,.009),310);
+ },1400);
  setTimeout(()=>{overlay.remove();clearInterval(timer)},3100);
 }
 function refreshAll(){
@@ -510,6 +518,7 @@ function finishFocus21(){
  if(xp){showXp(xp);if(level21()>before)showLevelUp(level21())}
 }
 window.focusStart=startFocus21;window.focusEnd=finishFocus21;window.drawFocus=tickFocus21;
+document.addEventListener('keydown',e=>{if(e.target.matches('.tf21-event')&&(e.key==='Enter'||e.key===' ')){e.preventDefault();openCalendarEvent({id:e.target.dataset.tfEvent})}});
 function runClock(){updateNowLine()}
 function init(){
  if(!$('home')||!$('settings'))return;
