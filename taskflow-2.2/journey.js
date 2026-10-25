@@ -51,6 +51,7 @@ async function ensure(){
  if(owner===user)return;
  owner=user;journey=null;cloudReady=false;loading=true;
  const version=++loadVersion;
+ let mustUpload=false;
  try{journey=clean(JSON.parse(localStorage.getItem(storageKey(user))))}catch(e){journey=null}
  setStatus('Načítám Journey…');draw();
  try{
@@ -60,11 +61,11 @@ async function ensure(){
   else{
    cloudReady=true;
    if(row&&row.data){journey=clean(row.data);saveLocal()}
-   else if(journey){saveJourney()}
+   else if(journey){mustUpload=true}
    setStatus(row?'Journey synchronizována':'Cloud Journey připraven');
   }
  }catch(e){cloudReady=false;setStatus('Jen na tomto zařízení · bez spojení s cloudem')}
- finally{if(version===loadVersion){loading=false;draw()}}
+ finally{if(version===loadVersion){loading=false;if(mustUpload&&cloudReady)saveJourney();draw()}}
 }
 function cardHabit(a,h,date){const finished=done(h,date),m=focusMins(h,date);
  return '<div class="tfj-habit '+(finished?'tfj-done':'')+'"><button type="button" class="tfj-check" data-tfj-check="'+esc(h.id)+'" data-date="'+date+'" aria-label="'+(finished?'Označit jako nesplněné: ':'Splnit: ')+esc(h.title)+'">'+(finished?'✓':'○')+'</button><div class="tfj-habit-body"><strong>'+esc(h.title)+'</strong><span class="small">'+esc(a.name)+' · '+(h.time?esc(h.time)+' · ':'Bez času · ')+(h.metric==='minutes'?m+'/'+h.target+' min Focus':'Návyk')+'</span></div><span class="tfj-chip" style="--area:'+esc(a.color)+'">'+(questFor(h,date)?.locked?h.xp+' XP':'Journey')+'</span></div>';
@@ -79,6 +80,7 @@ function draw(){
  homeDraw();const root=$('tfjContent');if(!root)return;
  const status=esc(cloudText);
  if(!uid()){root.innerHTML='<div class="panel"><h2>Nejdřív se přihlas</h2><p>Journey se vytvoří pro tvůj TaskFlow účet.</p></div>';return}
+ if(loading){root.innerHTML='<div class="panel"><h2>Načítám Journey…</h2><p>Než začneš upravovat výzvu, ověřuji poslední uloženou verzi.</p></div>';return}
  if(!journey){
   root.innerHTML='<div class="tfj-hero panel"><span class="eyebrow">YOUR 90-DAY JOURNEY</span><h2>Devadesát dní. Tvoje cesta.</h2><p>Stanov si vlastní oblasti, cíle a návyky. Pravidelnost je důležitější než dokonalost.</p><button class="primary" type="button" data-tfj-start>✦ Založit Journey</button><p class="small">'+status+'</p></div>';return
  }
