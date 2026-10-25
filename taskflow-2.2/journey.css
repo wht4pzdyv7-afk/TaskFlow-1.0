@@ -74,3 +74,42 @@
 @media(max-width:600px){.tfj-home-content{flex-direction:column;align-items:stretch}.tfj-home-side{max-width:none;width:auto}.tfj-milestones{grid-template-columns:1fr}.tfj-map{gap:3px}.tfj-map-cell{border-radius:4px;font-size:9px}.tfj-plan-row{flex-wrap:wrap}.tfj-areas{grid-template-columns:repeat(2,minmax(0,1fr))}.tfj-area-card{padding:11px}.tfj-chip{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.tfj-habit{animation:none}.tfj-area-card{transition:none}}
 body[data-tf-reduce-motion="true"] .tfj-habit{animation:none}
+
+
+/* 2.2.1 accessibility — My Journey card is always dark, even in Calm/Modern themes.
+   It must not inherit light-theme dark typography. */
+body #tfjHomeCard {
+  color:#F7F9FF;
+  background:linear-gradient(118deg,#20294A 0%,#263956 52%,#182C48 100%);
+  border:1px solid #8394D365;
+  box-shadow:0 12px 36px #0813242a;
+}
+body #tfjHomeCard .tfj-home-content,
+body #tfjHomeCard .tfj-home-content h2,
+body #tfjHomeCard .tfj-home-content strong {
+  color:#F7F9FF;
+}
+body #tfjHomeCard p,
+body #tfjHomeCard .small {
+  color:#D9E4FA;
+}
+body #tfjHomeCard .eyebrow {
+  color:#B9B0FF;
+  letter-spacing:1.45px;
+}
+body #tfjHomeCard .secondary {
+  color:#FFFFFF;
+  border:1px solid #B3C7EE81;
+  background:#182849;
+  font-weight:650;
+}
+body #tfjHomeCard .secondary:hover,
+body #tfjHomeCard .secondary:focus-visible {
+  background:#324E78;
+}
+body #tfjHomeCard .tfj-home-bar {
+  background:#AAB8DD4D;
+}
+body #tfjHomeCard .tfj-home-bar span {
+  background:linear-gradient(90deg,#58D8D8,#A79BFF);
+}
